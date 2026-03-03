@@ -32,7 +32,7 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Global Error Handler 
 
-// app.use(errorHandler);
+app.use(errorHandler);
 
 // Start Server
 const PORT = process.env.PORT || 3001
