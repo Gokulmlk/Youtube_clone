@@ -1,129 +1,183 @@
-import Video from "../models/Video.js";
 import Channel from "../models/Channel.js";
+import Video from "../models/Video.js";
+import User from "../models/User.js";
 
-// @desc    Get all videos (with search & filter)
-// @route   GET /api/videos
-// @access  Public
-export const getAllVideos = async (req, res, next) => {
+// @desc    Create a new channel
+// @route   POST /api/channels
+// @access  Private
+export const createChannel = async (req, res, next) => {
   try {
-    const { search, category, sort, page = 1, limit = 20 } = req.query;
+    const { channelName, description, channelBanner, channelAvatar } = req.body;
 
-    const query = { isPublic: true };
-
-    // Search by title
-    if (search && search.trim()) {
-      query.title = { $regex: search.trim(), $options: "i" };
-    }
-
-    // Filter by category
-    if (category && category !== "All") {
-      query.category = category;
-    }
-
-    // Sort options
-    let sortOption = { uploadDate: -1 }; // default: latest
-    if (sort === "views") sortOption = { views: -1 };
-    if (sort === "likes") sortOption = { likes: -1 };
-    if (sort === "oldest") sortOption = { uploadDate: 1 };
-
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-
-    const [videos, total] = await Promise.all([
-      Video.find(query)
-        .populate("channelId", "channelName channelAvatar handle subscribers")
-        .populate("uploader", "username avatar")
-        .sort(sortOption)
-        .skip(skip)
-        .limit(parseInt(limit)),
-      Video.countDocuments(query),
-    ]);
-
-    res.status(200).json({
-      success: true,
-      count: videos.length,
-      total,
-      totalPages: Math.ceil(total / parseInt(limit)),
-      currentPage: parseInt(page),
-      videos,
+    // Check if user already owns a channel with the same name
+    const existingChannel = await Channel.findOne({
+      owner: req.user._id,
+      channelName,
     });
-  } catch (error) {
-    next(error);
-  }
-};
 
-// @desc    Get single video by ID (also increments views)
-// @route   GET /api/videos/:id
-// @access  Public
-export const getVideoById = async (req, res, next) => {
-  try {
-    const video = await Video.findById(req.params.id)
-      .populate("channelId", "channelName channelAvatar handle subscribers subscribersList")
-      .populate("uploader", "username avatar")
-      .populate("comments.userId", "username avatar");
-
-    if (!video) {
-      return res.status(404).json({
+    if (existingChannel) {
+      return res.status(400).json({
         success: false,
-        message: "Video not found",
+        message: "You already have a channel with this name",
       });
     }
 
-    // Increment views
-    video.views += 1;
-    await video.save();
+    const channel = await Channel.create({
+      channelName,
+      description: description || "",
+      channelBanner: channelBanner || "",
+      channelAvatar:
+        channelAvatar ||
+        `https://ui-avatars.com/api/?name=${channelName}&background=random&size=200`,
+      owner: req.user._id,
+    });
 
-    res.status(200).json({
+    // Add channel to user's channels list
+    await User.findByIdAndUpdate(req.user._id, {
+      $push: { channels: channel._id },
+    });
+
+    const populatedChannel = await Channel.findById(channel._id).populate(
+      "owner",
+      "username avatar email"
+    );
+
+    res.status(201).json({
       success: true,
-      video,
+      message: "Channel created successfully",
+      channel: populatedChannel,
     });
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Get videos by channel ID
-// @route   GET /api/videos/channel/:channelId
+// @desc    Get all channels
+// @route   GET /api/channels
 // @access  Public
-export const getVideosByChannel = async (req, res, next) => {
+export const getAllChannels = async (req, res, next) => {
   try {
-    const { sort } = req.query;
-
-    let sortOption = { uploadDate: -1 };
-    if (sort === "popular") sortOption = { views: -1 };
-    if (sort === "oldest") sortOption = { uploadDate: 1 };
-
-    const videos = await Video.find({ channelId: req.params.channelId, isPublic: true })
-      .populate("channelId", "channelName channelAvatar handle")
-      .populate("uploader", "username avatar")
-      .sort(sortOption);
+    const channels = await Channel.find()
+      .populate("owner", "username avatar")
+      .select("-subscribersList")
+      .sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
-      count: videos.length,
-      videos,
+      count: channels.length,
+      channels,
     });
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Create a new video
-// @route   POST /api/videos
-// @access  Private
-export const createVideo = async (req, res, next) => {
+// @desc    Get single channel by ID
+// @route   GET /api/channels/:id
+// @access  Public
+export const getChannelById = async (req, res, next) => {
   try {
-    const {
-      title,
-      description,
-      thumbnailUrl,
-      videoUrl,
-      channelId,
-      category,
-      duration,
-    } = req.body;
+    const channel = await Channel.findById(req.params.id)
+      .populate("owner", "username avatar email")
+      .populate({
+        path: "videos",
+        populate: {
+          path: "uploader",
+          select: "username avatar",
+        },
+      });
 
-    // Verify channel exists and belongs to user
-    const channel = await Channel.findById(channelId);
+    if (!channel) {
+      return res.status(404).json({
+        success: false,
+        message: "Channel not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      channel,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get channels owned by logged-in user
+// @route   GET /api/channels/my-channels
+// @access  Private
+export const getMyChannels = async (req, res, next) => {
+  try {
+    const channels = await Channel.find({ owner: req.user._id })
+      .populate({
+        path: "videos",
+        select: "title thumbnailUrl views likes dislikes uploadDate category",
+      })
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: channels.length,
+      channels,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update channel
+// @route   PUT /api/channels/:id
+// @access  Private (owner only)
+export const updateChannel = async (req, res, next) => {
+  try {
+    const channel = await Channel.findById(req.params.id);
+
+    if (!channel) {
+      return res.status(404).json({
+        success: false,
+        message: "Channel not found",
+      });
+    }
+
+    // Check ownership
+    if (channel.owner.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "Not authorized to update this channel",
+      });
+    }
+
+    const { channelName, description, channelBanner, channelAvatar } = req.body;
+    const updateFields = {};
+
+    if (channelName) updateFields.channelName = channelName;
+    if (description !== undefined) updateFields.description = description;
+    if (channelBanner !== undefined) updateFields.channelBanner = channelBanner;
+    if (channelAvatar !== undefined) updateFields.channelAvatar = channelAvatar;
+
+    const updatedChannel = await Channel.findByIdAndUpdate(
+      req.params.id,
+      updateFields,
+      { new: true, runValidators: true }
+    ).populate("owner", "username avatar");
+
+    res.status(200).json({
+      success: true,
+      message: "Channel updated successfully",
+      channel: updatedChannel,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete channel
+// @route   DELETE /api/channels/:id
+// @access  Private (owner only)
+export const deleteChannel = async (req, res, next) => {
+  try {
+    const channel = await Channel.findById(req.params.id);
+
     if (!channel) {
       return res.status(404).json({
         success: false,
@@ -134,209 +188,68 @@ export const createVideo = async (req, res, next) => {
     if (channel.owner.toString() !== req.user._id.toString()) {
       return res.status(403).json({
         success: false,
-        message: "Not authorized to upload to this channel",
+        message: "Not authorized to delete this channel",
       });
     }
 
-    const video = await Video.create({
-      title,
-      description: description || "",
-      thumbnailUrl:
-        thumbnailUrl ||
-        `https://picsum.photos/seed/${Date.now()}/640/360`,
-      videoUrl,
-      channelId,
-      uploader: req.user._id,
-      category: category || "Web Development",
-      duration: duration || "0:00",
+    // Delete all videos belonging to this channel
+    await Video.deleteMany({ channelId: req.params.id });
+
+    // Remove channel from user's list
+    await User.findByIdAndUpdate(req.user._id, {
+      $pull: { channels: req.params.id },
     });
 
-    // Add video to channel's videos list
-    await Channel.findByIdAndUpdate(channelId, {
-      $push: { videos: video._id },
-    });
-
-    const populatedVideo = await Video.findById(video._id)
-      .populate("channelId", "channelName channelAvatar handle")
-      .populate("uploader", "username avatar");
-
-    res.status(201).json({
-      success: true,
-      message: "Video uploaded successfully",
-      video: populatedVideo,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// @desc    Update video
-// @route   PUT /api/videos/:id
-// @access  Private (uploader only)
-export const updateVideo = async (req, res, next) => {
-  try {
-    const video = await Video.findById(req.params.id);
-
-    if (!video) {
-      return res.status(404).json({
-        success: false,
-        message: "Video not found",
-      });
-    }
-
-    if (video.uploader.toString() !== req.user._id.toString()) {
-      return res.status(403).json({
-        success: false,
-        message: "Not authorized to update this video",
-      });
-    }
-
-    const { title, description, thumbnailUrl, category, videoUrl, isPublic, duration } = req.body;
-    const updateFields = {};
-
-    if (title) updateFields.title = title;
-    if (description !== undefined) updateFields.description = description;
-    if (thumbnailUrl !== undefined) updateFields.thumbnailUrl = thumbnailUrl;
-    if (category) updateFields.category = category;
-    if (videoUrl) updateFields.videoUrl = videoUrl;
-    if (isPublic !== undefined) updateFields.isPublic = isPublic;
-    if (duration) updateFields.duration = duration;
-
-    const updatedVideo = await Video.findByIdAndUpdate(
-      req.params.id,
-      updateFields,
-      { new: true, runValidators: true }
-    )
-      .populate("channelId", "channelName channelAvatar handle")
-      .populate("uploader", "username avatar");
+    await Channel.findByIdAndDelete(req.params.id);
 
     res.status(200).json({
       success: true,
-      message: "Video updated successfully",
-      video: updatedVideo,
+      message: "Channel and all its videos deleted successfully",
     });
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Delete video
-// @route   DELETE /api/videos/:id
-// @access  Private (uploader only)
-export const deleteVideo = async (req, res, next) => {
-  try {
-    const video = await Video.findById(req.params.id);
-
-    if (!video) {
-      return res.status(404).json({
-        success: false,
-        message: "Video not found",
-      });
-    }
-
-    if (video.uploader.toString() !== req.user._id.toString()) {
-      return res.status(403).json({
-        success: false,
-        message: "Not authorized to delete this video",
-      });
-    }
-
-    // Remove video from channel's list
-    await Channel.findByIdAndUpdate(video.channelId, {
-      $pull: { videos: req.params.id },
-    });
-
-    await Video.findByIdAndDelete(req.params.id);
-
-    res.status(200).json({
-      success: true,
-      message: "Video deleted successfully",
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// @desc    Like a video
-// @route   PUT /api/videos/:id/like
+// @desc    Subscribe / Unsubscribe to a channel
+// @route   PUT /api/channels/:id/subscribe
 // @access  Private
-export const likeVideo = async (req, res, next) => {
+export const toggleSubscribe = async (req, res, next) => {
   try {
-    const video = await Video.findById(req.params.id);
+    const channel = await Channel.findById(req.params.id);
 
-    if (!video) {
+    if (!channel) {
       return res.status(404).json({
         success: false,
-        message: "Video not found",
+        message: "Channel not found",
       });
     }
 
-    const userId = req.user._id;
-    const alreadyLiked = video.likes.includes(userId);
-    const alreadyDisliked = video.dislikes.includes(userId);
-
-    if (alreadyLiked) {
-      // Toggle off like
-      video.likes.pull(userId);
-    } else {
-      // Add like, remove dislike if present
-      video.likes.push(userId);
-      if (alreadyDisliked) {
-        video.dislikes.pull(userId);
-      }
-    }
-
-    await video.save();
-
-    res.status(200).json({
-      success: true,
-      message: alreadyLiked ? "Like removed" : "Video liked",
-      liked: !alreadyLiked,
-      likeCount: video.likes.length,
-      dislikeCount: video.dislikes.length,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// @desc    Dislike a video
-// @route   PUT /api/videos/:id/dislike
-// @access  Private
-export const dislikeVideo = async (req, res, next) => {
-  try {
-    const video = await Video.findById(req.params.id);
-
-    if (!video) {
-      return res.status(404).json({
+    // Can't subscribe to your own channel
+    if (channel.owner.toString() === req.user._id.toString()) {
+      return res.status(400).json({
         success: false,
-        message: "Video not found",
+        message: "You cannot subscribe to your own channel",
       });
     }
 
-    const userId = req.user._id;
-    const alreadyDisliked = video.dislikes.includes(userId);
-    const alreadyLiked = video.likes.includes(userId);
+    const isSubscribed = channel.subscribersList.includes(req.user._id);
 
-    if (alreadyDisliked) {
-      // Toggle off dislike
-      video.dislikes.pull(userId);
+    if (isSubscribed) {
+      channel.subscribersList.pull(req.user._id);
+      channel.subscribers = Math.max(0, channel.subscribers - 1);
     } else {
-      // Add dislike, remove like if present
-      video.dislikes.push(userId);
-      if (alreadyLiked) {
-        video.likes.pull(userId);
-      }
+      channel.subscribersList.push(req.user._id);
+      channel.subscribers += 1;
     }
 
-    await video.save();
+    await channel.save();
 
     res.status(200).json({
       success: true,
-      message: alreadyDisliked ? "Dislike removed" : "Video disliked",
-      disliked: !alreadyDisliked,
-      likeCount: video.likes.length,
-      dislikeCount: video.dislikes.length,
+      message: isSubscribed ? "Unsubscribed successfully" : "Subscribed successfully",
+      subscribed: !isSubscribed,
+      subscribers: channel.subscribers,
     });
   } catch (error) {
     next(error);

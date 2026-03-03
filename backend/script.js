@@ -7,6 +7,7 @@ import errorHandler from "./middleware/errorMiddleware.js";
 
 // Route imports
 import authRoutes from "./routes/authRoutes.js";
+import channelRoutes from "./routes/channelRoutes.js";
 import videoRoutes from "./routes/videoRoutes.js"
 
 // Load environment variables
@@ -34,7 +35,27 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 //API Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/channels", channelRoutes);
 app.use("/api/videos", videoRoutes);
+
+//Health Check
+
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "YouTube Clone API is running",
+    environment: process.env.NODE_ENV,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// 404 Handler
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `Route ${req.originalUrl} not found`,
+  });
+});
 
 
 // Global Error Handler 
