@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import morgan from "morgan";
+import connectDB from "./config/db.js";
 import dotenv from "dotenv";
 
 
@@ -32,7 +32,7 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Global Error Handler 
 
-app.use(errorHandler);
+// app.use(errorHandler);
 
 // Start Server
 const PORT = process.env.PORT || 3001
