@@ -7,6 +7,7 @@ import errorHandler from "./middleware/errorMiddleware.js";
 
 // Route imports
 import authRoutes from "./routes/authRoutes.js";
+import videoRoutes from "./routes/videoRoutes.js"
 
 // Load environment variables
 dotenv.config();
@@ -33,6 +34,7 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 //API Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/videos", videoRoutes);
 
 
 // Global Error Handler 
