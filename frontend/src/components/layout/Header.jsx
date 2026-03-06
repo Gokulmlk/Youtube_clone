@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { HiMenu, HiSearch, HiVideoCamera, HiBell, HiUser } from 'react-icons/hi'
-import { MdVideoCall } from 'react-icons/md'
+import { HiMenu, HiSearch, HiBell, HiUser } from 'react-icons/hi'
+import { IoLogoYoutube } from "react-icons/io5";
+import { MdKeyboardVoice } from "react-icons/md";
+import { MdVideoCall} from 'react-icons/md'
 import { logout } from '../../store/slices/authSlice'
 import { useTheme } from '../../context/ThemeContext'
 
@@ -36,30 +38,37 @@ export default function Header() {
         </button>
         <Link to="/" className="flex items-center gap-1">
           <div className="bg-red-600 rounded px-1 py-0.5">
-            <HiVideoCamera className="text-white text-xl" />
+            <IoLogoYoutube className="text-white text-xl" />
           </div>
           <span className="text-white font-bold text-xl hidden sm:block">YouTube</span>
         </Link>
       </div>
 
-      {/* Center - Search */}
-      <form onSubmit={handleSearch} className="flex items-center flex-1 max-w-xl mx-4">
-        <div className="flex flex-1 border border-[#303030] rounded-l-full overflow-hidden">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search"
-            className="flex-1 bg-[#121212] text-white px-4 py-2 text-sm focus:outline-none focus:border-blue-500 border border-transparent"
-          />
-        </div>
-        <button
-          type="submit"
-          className="bg-[#222222] border border-l-0 border-[#303030] px-5 py-2 rounded-r-full hover:bg-[#3d3d3d] transition-colors"
-        >
-          <HiSearch className="text-white text-lg" />
+      {/* Center - Search + Voice */}
+      <div className="flex items-center flex-1 max-w-xl mx-4 gap-2">
+        <form onSubmit={handleSearch} className="flex items-center flex-1">
+          <div className="flex flex-1 border border-[#303030] rounded-l-full overflow-hidden">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search"
+              className="flex-1 bg-[#121212] text-white px-4 py-2 text-sm focus:outline-none focus:border-blue-500 border border-transparent"
+            />
+          </div>
+          <button
+            type="submit"
+            className="bg-[#222222] border border-l-0 border-[#303030] px-5 py-2 rounded-r-full hover:bg-[#3d3d3d] transition-colors"
+          >
+            <HiSearch className="text-white text-lg" />
+          </button>
+        </form>
+        
+        <button className="p-2 rounded-full hover:bg-[#272727] flex-shrink-0">
+          <MdKeyboardVoice className="text-white text-xl" />
         </button>
-      </form>
+      </div>
+      
 
       {/* Right */}
       <div className="flex items-center gap-2">

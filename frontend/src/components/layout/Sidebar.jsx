@@ -1,7 +1,8 @@
 import { NavLink } from 'react-router-dom'
 import { useSelector } from 'react-redux'
+import { AiOutlineHome, AiFillHome } from 'react-icons/ai'
+
 import {
-  AiOutlineHome, AiFillHome,
   MdOutlineSubscriptions, MdSubscriptions,
   MdOutlineVideoLibrary, MdVideoLibrary,
   MdHistory, MdOutlineWatchLater, MdThumbUp,
