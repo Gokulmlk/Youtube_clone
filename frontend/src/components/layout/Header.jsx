@@ -3,8 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { HiMenu, HiSearch, HiBell, HiUser } from 'react-icons/hi'
 import { IoLogoYoutube } from "react-icons/io5";
-import { MdKeyboardVoice } from "react-icons/md";
-import { MdVideoCall} from 'react-icons/md'
+import { MdVideoCall, MdKeyboardVoice, MdLightMode, MdDarkMode } from 'react-icons/md'
 import { logout } from '../../store/slices/authSlice'
 import { useTheme } from '../../context/ThemeContext'
 
@@ -14,7 +13,7 @@ export default function Header() {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { user } = useSelector(s => s.auth)
-  const { toggleSidebar } = useTheme()
+  const { toggleSidebar, darkMode, toggleTheme } = useTheme()
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -57,13 +56,17 @@ export default function Header() {
             />
           </div>
           <button
-            type="submit"
-            className="bg-[#222222] border border-l-0 border-[#303030] px-5 py-2 rounded-r-full hover:bg-[#3d3d3d] transition-colors"
-          >
-            <HiSearch className="text-white text-lg" />
+             type="submit"
+             className={`border border-l-0 border-[#303030] px-5 py-2 rounded-r-full transition-colors ${
+               darkMode
+                 ? 'bg-[#222222] hover:bg-[#3d3d3d]'   // dark mode — dark button
+                 : 'bg-[#f8f8f8] hover:bg-[#e0e0e0]'   // light mode — light button
+             }`}
+>           
+             <HiSearch className={darkMode ? 'text-white text-lg' : 'text-black text-lg'} />
           </button>
         </form>
-        
+
         <button className="p-2 rounded-full hover:bg-[#272727] flex-shrink-0">
           <MdKeyboardVoice className="text-white text-xl" />
         </button>
@@ -81,6 +84,16 @@ export default function Header() {
               <MdVideoCall className="text-2xl" />
               <span className="hidden sm:block text-sm">Upload</span>
             </Link>
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-full hover:bg-[#272727] transition-colors"
+              title={darkMode ? 'Switch to Light mode' : 'Switch to Dark mode'}
+            >
+              {darkMode
+                ? <MdLightMode className="text-white text-xl" />
+                : <MdDarkMode className="text-white text-xl" />
+              }
+            </button>
             <button className="p-2 rounded-full hover:bg-[#272727]">
               <HiBell className="text-white text-xl" />
             </button>

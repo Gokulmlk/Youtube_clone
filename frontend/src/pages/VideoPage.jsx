@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { MdShare, MdMoreHoriz, MdDelete, MdEdit } from 'react-icons/md'
+import { MdShare, MdDelete, MdEdit } from 'react-icons/md'
 import { fetchVideoById, deleteVideo, clearCurrentVideo } from '../store/slices/videoSlice'
 import { fetchVideosByChannel } from '../store/slices/videoSlice'
 import { toggleSubscribe } from '../store/slices/channelSlice'

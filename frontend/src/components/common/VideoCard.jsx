@@ -1,10 +1,13 @@
 import { Link } from 'react-router-dom'
 import { formatViews, timeAgo } from '../../utils/formatters'
+import { useTheme } from '../../context/ThemeContext'
 
 export default function VideoCard({ video }) {
   const channel = video.channelId
   const avatar = channel?.channelAvatar || `https://ui-avatars.com/api/?name=${channel?.channelName || 'C'}&background=random&color=fff`
   const thumbnail = video.thumbnailUrl || `https://picsum.photos/seed/${video._id}/640/360`
+  const { darkMode } = useTheme()
+
 
   return (
     <Link to={`/video/${video._id}`} className="group flex flex-col cursor-pointer">
@@ -17,8 +20,12 @@ export default function VideoCard({ video }) {
           onError={(e) => { e.target.src = `https://picsum.photos/seed/${video._id}/640/360` }}
         />
         {video.duration && (
-          <span className="absolute bottom-1 right-1 bg-black/80 text-white text-xs px-1 py-0.5 rounded font-medium">
-            {video.duration}
+          <span className={`absolute bottom-1 right-1 text-xs px-1.5 py-0.5 rounded font-medium ${
+              darkMode
+                ? 'bg-black/80 text-white'
+                : 'bg-white/70 text-black'
+                }`}>
+                {video.duration}
           </span>
         )}
       </div>

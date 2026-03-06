@@ -28,3 +28,32 @@ body {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Light mode overrides */
+.light-mode {
+  background-color: #ffffff;
+  color: #0f0f0f;
+}
+
+.light-mode header {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.light-mode aside {
+  background-color: #ffffff;
+}
+
+.light-mode main {
+  background-color: #f9f9f9;
+}
+
+/* Video cards in light mode */
+.light-mode .bg-\[\#0f0f0f\] { background-color: #f9f9f9; }
+.light-mode .bg-\[\#121212\] { background-color: #f1f1f1; }
+.light-mode .bg-\[\#212121\] { background-color: #ffffff; }
+.light-mode .bg-\[\#272727\] { background-color: #f2f2f2; }
+.light-mode .bg-\[\#3d3d3d\] { background-color: #e0e0e0; }
+.light-mode .text-white      { color: #0f0f0f; }
+.light-mode .text-\[\#aaa\]  { color: #606060; }
+.light-mode .border-\[\#3d3d3d\] { border-color: #e5e5e5; }
