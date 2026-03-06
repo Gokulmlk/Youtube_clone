@@ -70,20 +70,60 @@ export default function VideoPlayer({ videoUrl, thumbnailUrl, title }) {
       />
 
       {/* Controls overlay */}
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="absolute bottom-0 left-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity"
+        style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}
+      >
         {/* Progress bar */}
-        <div className="w-full h-1 bg-white/30 rounded cursor-pointer mb-3" onClick={handleSeek}>
-          <div className="h-full bg-red-600 rounded" style={{ width: `${progress}%` }} />
+        <div
+          className="w-full h-1.5 rounded cursor-pointer mb-3 relative"
+          style={{ backgroundColor: 'rgba(255,255,255,0.3)' }}
+          onClick={handleSeek}
+        >
+          <div
+            className="h-full bg-red-600 rounded relative"
+            style={{ width: `${progress}%` }}
+          >
+            {/* scrubber dot */}
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-red-600 rounded-full shadow-md" />
+          </div>
         </div>
+        
         <div className="flex items-center gap-3">
-          <button onClick={togglePlay} className="text-white hover:text-red-400 transition-colors">
+          {/* Play / Pause */}
+          <button
+            onClick={togglePlay}
+            style={{ color: '#ffffff' }}
+            className="hover:scale-110 transition-transform"
+          >
             {playing ? <MdPause className="text-2xl" /> : <MdPlayArrow className="text-2xl" />}
           </button>
-          <button onClick={toggleMute} className="text-white hover:text-red-400 transition-colors">
+        
+          {/* Mute / Unmute */}
+          <button
+            onClick={toggleMute}
+            style={{ color: '#ffffff' }}
+            className="hover:scale-110 transition-transform"
+          >
             {muted ? <MdVolumeOff className="text-xl" /> : <MdVolumeUp className="text-xl" />}
           </button>
+        
+          {/* Time display */}
+          <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: '12px', fontWeight: 500 }}>
+            {Math.floor((videoRef.current?.currentTime || 0) / 60)}:
+            {String(Math.floor((videoRef.current?.currentTime || 0) % 60)).padStart(2, '0')}
+            {' / '}
+            {Math.floor((videoRef.current?.duration || 0) / 60)}:
+            {String(Math.floor((videoRef.current?.duration || 0) % 60)).padStart(2, '0')}
+          </span>
+        
           <div className="flex-1" />
-          <button onClick={handleFullscreen} className="text-white hover:text-red-400 transition-colors">
+        
+          {/* Fullscreen */}
+          <button
+            onClick={handleFullscreen}
+            style={{ color: '#ffffff' }}
+            className="hover:scale-110 transition-transform"
+          >
             <MdFullscreen className="text-xl" />
           </button>
         </div>

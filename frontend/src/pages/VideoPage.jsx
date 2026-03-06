@@ -20,6 +20,9 @@ export default function VideoPage() {
   const navigate = useNavigate()
   const { currentVideo, loading, channelVideos } = useSelector(s => s.video)
   const { user } = useSelector(s => s.auth)
+  const { subscribedChannels } = useSelector(s => s.channel)
+  const isSubscribed = user && currentVideo?.channelId?._id
+  && subscribedChannels.includes(currentVideo.channelId._id)
 
   useEffect(() => {
     dispatch(fetchVideoById(id))
@@ -36,6 +39,7 @@ export default function VideoPage() {
     if (!user) { toast.info('Please sign in to subscribe'); navigate('/login'); return }
     dispatch(toggleSubscribe(currentVideo.channelId._id))
   }
+ 
 
   const handleDelete = async () => {
     if (!confirm('Delete this video?')) return
@@ -85,10 +89,14 @@ export default function VideoPage() {
               </Link>
               <button
                 onClick={handleSubscribe}
-                className="ml-2 bg-white text-black hover:bg-gray-200 px-4 py-2 rounded-full text-sm font-semibold transition-colors"
+                className={`ml-2 px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+                  isSubscribed
+                    ? 'bg-[#272727] hover:bg-[#3d3d3d] text-white'   // already subscribed
+                    : 'bg-white hover:bg-gray-200 text-black'          // not subscribed
+                }`}
               >
-                Subscribe
-              </button>
+               {isSubscribed ? 'Subscribed' : 'Subscribe'}
+                </button>
             </div>
 
             {/* Actions */}

@@ -38,7 +38,14 @@ export const toggleSubscribe = createAsyncThunk('channel/subscribe', async (id, 
 
 const channelSlice = createSlice({
   name: 'channel',
-  initialState: { channels: [], currentChannel: null, myChannels: [], loading: false, error: null },
+  initialState: {
+  channels: [],
+  currentChannel: null,
+  myChannels: [],
+  subscribedChannels: JSON.parse(localStorage.getItem('yt_subscribed') || '[]'),
+  loading: false,
+  error: null,
+  },
   reducers: {
     clearChannelError: (state) => { state.error = null },
     clearCurrentChannel: (state) => { state.currentChannel = null },
@@ -64,6 +71,19 @@ const channelSlice = createSlice({
         state.myChannels = state.myChannels.filter(c => c._id !== action.payload)
       })
       .addCase(toggleSubscribe.fulfilled, (state, action) => {
+        const channelId = action.meta.arg  // the id passed to the thunk
+        if (action.payload.subscribed) {
+          // add to subscribed list
+          if (!state.subscribedChannels.includes(channelId)) {
+            state.subscribedChannels.push(channelId)
+          }
+        } else {
+          // remove from subscribed list
+          state.subscribedChannels = state.subscribedChannels.filter(id => id !== channelId)
+        }
+        // persist to localStorage
+        localStorage.setItem('yt_subscribed', JSON.stringify(state.subscribedChannels))
+      
         if (state.currentChannel) {
           state.currentChannel.subscribers = action.payload.subscribers
           state.currentChannel.subscribed = action.payload.subscribed
