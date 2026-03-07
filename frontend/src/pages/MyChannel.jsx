@@ -85,35 +85,44 @@ export default function MyChannel() {
     setShowEditForm(true)
   }
 
+  // shared input class used in both modals
+  const inputCls = "w-full bg-[#121212] border border-[#3d3d3d] text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 placeholder-[#555]"
+
   return (
-    <div className="px-6 py-6 max-w-6xl">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-white text-2xl font-bold">My Channel</h1>
-        <div className="flex gap-2">
+    <div className="px-3 sm:px-4 md:px-6 py-4 sm:py-6 max-w-6xl mx-auto w-full">
+
+      {/* ── Page Header ── */}
+      <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-3 mb-5 sm:mb-6">
+        <h1 className="text-white text-xl sm:text-2xl font-bold">My Channel</h1>
+        <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => { setShowCreateForm(true); setChannelForm({ channelName: '', description: '', channelAvatar: '' }) }}
-            className="flex items-center gap-2 bg-[#272727] hover:bg-[#3d3d3d] text-white px-4 py-2 rounded-full text-sm font-medium transition-colors"
+            className="flex items-center gap-1.5 bg-[#272727] hover:bg-[#3d3d3d] text-white px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-colors"
           >
-            <MdAdd /> New Channel
+            <MdAdd className="text-base sm:text-lg" />
+            <span>New Channel</span>
           </button>
           {selectedChannel && (
             <button
               onClick={() => navigate('/upload')}
-              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full text-sm font-semibold transition-colors"
+              className="flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-colors"
             >
-              <MdVideoCall /> Upload Video
+              <MdVideoCall className="text-base sm:text-lg" />
+              <span>Upload Video</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* Create Channel Modal */}
+      {/* ── Create Channel Modal ── */}
       {showCreateForm && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
-          <div className="bg-[#212121] rounded-2xl p-6 w-full max-w-md border border-[#3d3d3d]">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-3 sm:px-4">
+          <div className="bg-[#212121] rounded-2xl p-5 sm:p-6 w-full max-w-md border border-[#3d3d3d] max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-white font-semibold text-lg">Create Channel</h2>
-              <button onClick={() => setShowCreateForm(false)} className="text-[#aaa] hover:text-white"><MdClose className="text-xl" /></button>
+              <h2 className="text-white font-semibold text-base sm:text-lg">Create Channel</h2>
+              <button onClick={() => setShowCreateForm(false)} className="text-[#aaa] hover:text-white p-1">
+                <MdClose className="text-xl" />
+              </button>
             </div>
             <form onSubmit={handleCreateChannel} className="flex flex-col gap-4">
               <div>
@@ -124,7 +133,7 @@ export default function MyChannel() {
                   onChange={(e) => setChannelForm({ ...channelForm, channelName: e.target.value })}
                   required minLength={3}
                   placeholder="My Awesome Channel"
-                  className="w-full bg-[#121212] border border-[#3d3d3d] text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 placeholder-[#555]"
+                  className={inputCls}
                 />
               </div>
               <div>
@@ -134,7 +143,7 @@ export default function MyChannel() {
                   onChange={(e) => setChannelForm({ ...channelForm, description: e.target.value })}
                   placeholder="What is your channel about?"
                   rows={3}
-                  className="w-full bg-[#121212] border border-[#3d3d3d] text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 placeholder-[#555] resize-none"
+                  className={`${inputCls} resize-none`}
                 />
               </div>
               <div>
@@ -144,12 +153,16 @@ export default function MyChannel() {
                   value={channelForm.channelAvatar}
                   onChange={(e) => setChannelForm({ ...channelForm, channelAvatar: e.target.value })}
                   placeholder="https://example.com/avatar.jpg"
-                  className="w-full bg-[#121212] border border-[#3d3d3d] text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 placeholder-[#555]"
+                  className={inputCls}
                 />
               </div>
               <div className="flex gap-2 justify-end mt-2">
-                <button type="button" onClick={() => setShowCreateForm(false)} className="px-4 py-2 text-[#aaa] hover:text-white text-sm rounded-lg transition-colors">Cancel</button>
-                <button type="submit" disabled={loading} className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50">
+                <button type="button" onClick={() => setShowCreateForm(false)}
+                  className="px-4 py-2 text-[#aaa] hover:text-white text-sm rounded-lg transition-colors">
+                  Cancel
+                </button>
+                <button type="submit" disabled={loading}
+                  className="px-5 sm:px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50">
                   {loading ? 'Creating...' : 'Create Channel'}
                 </button>
               </div>
@@ -158,13 +171,15 @@ export default function MyChannel() {
         </div>
       )}
 
-      {/* Edit Channel Modal */}
+      {/* ── Edit Channel Modal ── */}
       {showEditForm && selectedChannel && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
-          <div className="bg-[#212121] rounded-2xl p-6 w-full max-w-md border border-[#3d3d3d]">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-3 sm:px-4">
+          <div className="bg-[#212121] rounded-2xl p-5 sm:p-6 w-full max-w-md border border-[#3d3d3d] max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-white font-semibold text-lg">Edit Channel</h2>
-              <button onClick={() => setShowEditForm(false)} className="text-[#aaa] hover:text-white"><MdClose className="text-xl" /></button>
+              <h2 className="text-white font-semibold text-base sm:text-lg">Edit Channel</h2>
+              <button onClick={() => setShowEditForm(false)} className="text-[#aaa] hover:text-white p-1">
+                <MdClose className="text-xl" />
+              </button>
             </div>
             <form onSubmit={handleEditChannel} className="flex flex-col gap-4">
               <div>
@@ -174,7 +189,7 @@ export default function MyChannel() {
                   value={channelForm.channelName}
                   onChange={(e) => setChannelForm({ ...channelForm, channelName: e.target.value })}
                   required minLength={3}
-                  className="w-full bg-[#121212] border border-[#3d3d3d] text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500"
+                  className={inputCls}
                 />
               </div>
               <div>
@@ -183,7 +198,7 @@ export default function MyChannel() {
                   value={channelForm.description}
                   onChange={(e) => setChannelForm({ ...channelForm, description: e.target.value })}
                   rows={3}
-                  className="w-full bg-[#121212] border border-[#3d3d3d] text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 resize-none"
+                  className={`${inputCls} resize-none`}
                 />
               </div>
               <div>
@@ -192,12 +207,16 @@ export default function MyChannel() {
                   type="url"
                   value={channelForm.channelAvatar}
                   onChange={(e) => setChannelForm({ ...channelForm, channelAvatar: e.target.value })}
-                  className="w-full bg-[#121212] border border-[#3d3d3d] text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500"
+                  className={inputCls}
                 />
               </div>
               <div className="flex gap-2 justify-end mt-2">
-                <button type="button" onClick={() => setShowEditForm(false)} className="px-4 py-2 text-[#aaa] hover:text-white text-sm rounded-lg">Cancel</button>
-                <button type="submit" disabled={loading} className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg disabled:opacity-50">
+                <button type="button" onClick={() => setShowEditForm(false)}
+                  className="px-4 py-2 text-[#aaa] hover:text-white text-sm rounded-lg transition-colors">
+                  Cancel
+                </button>
+                <button type="submit" disabled={loading}
+                  className="px-5 sm:px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50">
                   {loading ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
@@ -206,17 +225,16 @@ export default function MyChannel() {
         </div>
       )}
 
-      {/* ========== MY CHANNELS LIST ========== */}
+      {/* ── My Channels List ── */}
       {myChannels.length > 0 && (
-        <div className="mb-6">
-          <h2 className="text-white font-semibold mb-3">Your Channels</h2>
-          <div className="flex flex-wrap gap-3">
+        <div className="mb-5 sm:mb-6">
+          <h2 className="text-white font-semibold mb-3 text-sm sm:text-base">Your Channels</h2>
+          <div className="flex flex-wrap gap-2 sm:gap-3">
             {myChannels.map(ch => (
               <div
                 key={ch._id}
-                // clicking avatar side → selects channel in dashboard below
                 onClick={() => handleSelectChannel(ch)}
-                className={`flex items-center gap-3 px-4 py-2 rounded-xl cursor-pointer transition-colors border group ${
+                className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 rounded-xl cursor-pointer transition-colors border group ${
                   selectedChannel?._id === ch._id
                     ? 'bg-white/10 border-white/30'
                     : 'border-[#3d3d3d] hover:bg-[#272727]'
@@ -225,28 +243,18 @@ export default function MyChannel() {
                 <img
                   src={ch.channelAvatar || `https://ui-avatars.com/api/?name=${ch.channelName}&background=random&color=fff`}
                   alt={ch.channelName}
-                  className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover flex-shrink-0"
                   onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${ch.channelName}&background=random&color=fff` }}
                 />
-
-                {/* Channel name → navigate to channel page */}
                 <span
-                  className="text-sm font-medium text-white hover:text-blue-400 transition-colors"
-                  onClick={(e) => {
-                    e.stopPropagation()           // don't trigger parent's handleSelectChannel
-                    navigate(`/channel/${ch._id}`)
-                  }}
+                  className="text-xs sm:text-sm font-medium text-white hover:text-blue-400 transition-colors"
+                  onClick={(e) => { e.stopPropagation(); navigate(`/channel/${ch._id}`) }}
                 >
                   {ch.channelName}
                 </span>
-
-                {/* Arrow icon → also navigates to channel page */}
                 <MdArrowForward
-                  className="text-[#aaa] group-hover:text-white text-sm transition-colors ml-1"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    navigate(`/channel/${ch._id}`)
-                  }}
+                  className="text-[#aaa] group-hover:text-white text-sm transition-colors ml-0.5"
+                  onClick={(e) => { e.stopPropagation(); navigate(`/channel/${ch._id}`) }}
                 />
               </div>
             ))}
@@ -254,67 +262,108 @@ export default function MyChannel() {
         </div>
       )}
 
-      {/* ========== SELECTED CHANNEL DETAIL ========== */}
+      {/* ── Selected Channel Detail ── */}
       {selectedChannel ? (
         <div>
-          <div className="bg-[#212121] rounded-2xl p-5 mb-6 border border-[#3d3d3d]">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-4">
+
+          {/* Channel info card */}
+          <div className="bg-[#212121] rounded-2xl p-4 sm:p-5 mb-5 sm:mb-6 border border-[#3d3d3d]">
+            {/* Mobile: stacked | sm+: row */}
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+
+              {/* Avatar + text */}
+              <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                 <img
                   src={selectedChannel.channelAvatar || `https://ui-avatars.com/api/?name=${selectedChannel.channelName}&background=random&color=fff&size=60`}
                   alt={selectedChannel.channelName}
-                  className="w-14 h-14 rounded-full object-cover"
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover flex-shrink-0"
                   onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${selectedChannel.channelName}&background=random&color=fff&size=60` }}
                 />
-                <div>
-                  <h2 className="text-white font-bold text-xl">{selectedChannel.channelName}</h2>
-                  <p className="text-[#aaa] text-sm">{selectedChannel.handle}</p>
-                  <p className="text-[#aaa] text-sm">{selectedChannel.subscribers || 0} subscribers • {channelVideos.length} videos</p>
-                  {selectedChannel.description && <p className="text-[#aaa] text-sm mt-1">{selectedChannel.description}</p>}
+                <div className="min-w-0">
+                  <h2 className="text-white font-bold text-base sm:text-xl truncate">{selectedChannel.channelName}</h2>
+                  <p className="text-[#aaa] text-xs sm:text-sm">{selectedChannel.handle}</p>
+                  <p className="text-[#aaa] text-xs sm:text-sm">
+                    {selectedChannel.subscribers || 0} subscribers • {channelVideos.length} videos
+                  </p>
+                  {selectedChannel.description && (
+                    <p className="text-[#aaa] text-xs sm:text-sm mt-1 line-clamp-2">{selectedChannel.description}</p>
+                  )}
                 </div>
               </div>
-              <div className="flex gap-2">
-                {/* View public channel page */}
+
+              {/* Action buttons */}
+              <div className="flex gap-2 flex-wrap flex-shrink-0">
                 <button
                   onClick={() => navigate(`/channel/${selectedChannel._id}`)}
-                  className="flex items-center gap-1 bg-[#272727] hover:bg-[#3d3d3d] text-white px-3 py-1.5 rounded-lg text-sm transition-colors"
+                  className="flex items-center gap-1 bg-[#272727] hover:bg-[#3d3d3d] text-white px-2.5 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm transition-colors"
                 >
-                  <MdArrowForward /> View Channel
+                  <MdArrowForward />
+                  <span className="hidden sm:inline">View Channel</span>
+                  <span className="sm:hidden">View</span>
                 </button>
-                <button onClick={() => startEdit(selectedChannel)} className="flex items-center gap-1 bg-[#272727] hover:bg-[#3d3d3d] text-white px-3 py-1.5 rounded-lg text-sm transition-colors">
-                  <MdEdit /> Edit
+                <button
+                  onClick={() => startEdit(selectedChannel)}
+                  className="flex items-center gap-1 bg-[#272727] hover:bg-[#3d3d3d] text-white px-2.5 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm transition-colors"
+                >
+                  <MdEdit />
+                  <span>Edit</span>
                 </button>
-                <button onClick={() => handleDeleteChannel(selectedChannel._id)} className="flex items-center gap-1 bg-[#272727] hover:bg-red-600/20 text-red-400 px-3 py-1.5 rounded-lg text-sm transition-colors">
-                  <MdDelete /> Delete
+                <button
+                  onClick={() => handleDeleteChannel(selectedChannel._id)}
+                  className="flex items-center gap-1 bg-[#272727] hover:bg-red-600/20 text-red-400 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm transition-colors"
+                >
+                  <MdDelete />
+                  <span>Delete</span>
                 </button>
               </div>
             </div>
           </div>
 
+          {/* Videos section header */}
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-white font-semibold">Videos ({channelVideos.length})</h3>
-            <button onClick={() => navigate('/upload')} className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full text-sm font-semibold transition-colors">
-              <MdVideoCall /> Upload Video
+            <h3 className="text-white font-semibold text-sm sm:text-base">
+              Videos
+              <span className="text-[#aaa] font-normal ml-1">({channelVideos.length})</span>
+            </h3>
+            <button
+              onClick={() => navigate('/upload')}
+              className="flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-colors"
+            >
+              <MdVideoCall className="text-base" />
+              <span>Upload Video</span>
             </button>
           </div>
 
+          {/* Empty state */}
           {channelVideos.length === 0 ? (
-            <div className="text-center py-16 bg-[#212121] rounded-2xl border border-[#3d3d3d]">
-              <MdVideoCall className="text-6xl text-[#aaa] mx-auto mb-3" />
-              <p className="text-white font-semibold mb-2">No videos yet</p>
-              <p className="text-[#aaa] text-sm mb-4">Upload your first video to get started</p>
-              <button onClick={() => navigate('/upload')} className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full text-sm font-semibold transition-colors">Upload Video</button>
+            <div className="text-center py-12 sm:py-16 bg-[#212121] rounded-2xl border border-[#3d3d3d] px-4">
+              <MdVideoCall className="text-5xl sm:text-6xl text-[#aaa] mx-auto mb-3" />
+              <p className="text-white font-semibold text-sm sm:text-base mb-2">No videos yet</p>
+              <p className="text-[#aaa] text-xs sm:text-sm mb-4">Upload your first video to get started</p>
+              <button
+                onClick={() => navigate('/upload')}
+                className="bg-red-600 hover:bg-red-700 text-white px-5 sm:px-6 py-2 rounded-full text-sm font-semibold transition-colors"
+              >
+                Upload Video
+              </button>
             </div>
           ) : (
-            <div className="bg-[#212121] rounded-2xl border border-[#3d3d3d] overflow-hidden">
-              <table className="w-full text-sm">
+            /*
+              Video table breakpoints:
+              mobile  (< sm)  → thumbnail + title + actions
+              sm      (640px) → + Views
+              md      (768px) → + Category
+              lg      (1024px)→ + Date
+            */
+            <div className="bg-[#212121] rounded-2xl border border-[#3d3d3d] overflow-hidden overflow-x-auto">
+              <table className="w-full text-sm min-w-[300px]">
                 <thead className="border-b border-[#3d3d3d]">
                   <tr className="text-[#aaa]">
-                    <th className="px-4 py-3 text-left font-medium">Video</th>
-                    <th className="px-4 py-3 text-left font-medium hidden sm:table-cell">Category</th>
-                    <th className="px-4 py-3 text-left font-medium hidden md:table-cell">Views</th>
-                    <th className="px-4 py-3 text-left font-medium hidden lg:table-cell">Date</th>
-                    <th className="px-4 py-3 text-right font-medium">Actions</th>
+                    <th className="px-3 sm:px-4 py-3 text-left font-medium">Video</th>
+                    <th className="px-3 sm:px-4 py-3 text-left font-medium hidden md:table-cell">Category</th>
+                    <th className="px-3 sm:px-4 py-3 text-left font-medium hidden sm:table-cell">Views</th>
+                    <th className="px-3 sm:px-4 py-3 text-left font-medium hidden lg:table-cell">Date</th>
+                    <th className="px-3 sm:px-4 py-3 text-right font-medium">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -322,42 +371,57 @@ export default function MyChannel() {
                     <tr
                       key={v._id}
                       className="border-b border-[#3d3d3d] hover:bg-[#272727] transition-colors cursor-pointer"
-                      // ✅ clicking the row opens the video page
                       onClick={() => navigate(`/video/${v._id}`)}
                     >
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-3">
+                      {/* Thumbnail + Title */}
+                      <td className="px-3 sm:px-4 py-3">
+                        <div className="flex items-center gap-2 sm:gap-3">
                           <img
                             src={v.thumbnailUrl || `https://picsum.photos/seed/${v._id}/120/68`}
                             alt={v.title}
-                            className="w-24 aspect-video object-cover rounded flex-shrink-0"
+                            className="w-16 sm:w-24 aspect-video object-cover rounded flex-shrink-0"
                             onError={(e) => { e.target.src = `https://picsum.photos/seed/${v._id}/120/68` }}
                           />
-                          <span className="text-white font-medium line-clamp-2 max-w-xs">{v.title}</span>
+                          <span className="text-white font-medium line-clamp-2 text-xs sm:text-sm max-w-[100px] xs:max-w-[150px] sm:max-w-xs">
+                            {v.title}
+                          </span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-[#aaa] hidden sm:table-cell">{v.category}</td>
-                      <td className="px-4 py-3 text-[#aaa] hidden md:table-cell">{formatViews(v.views)}</td>
-                      <td className="px-4 py-3 text-[#aaa] hidden lg:table-cell">{timeAgo(v.createdAt)}</td>
-                      <td className="px-4 py-3">
+
+                      {/* Category — md+ only */}
+                      <td className="px-3 sm:px-4 py-3 text-[#aaa] text-xs sm:text-sm hidden md:table-cell">
+                        {v.category}
+                      </td>
+
+                      {/* Views — sm+ only */}
+                      <td className="px-3 sm:px-4 py-3 text-[#aaa] text-xs sm:text-sm hidden sm:table-cell">
+                        {formatViews(v.views)}
+                      </td>
+
+                      {/* Date — lg+ only */}
+                      <td className="px-3 sm:px-4 py-3 text-[#aaa] text-xs sm:text-sm hidden lg:table-cell">
+                        {timeAgo(v.createdAt)}
+                      </td>
+
+                      {/* Edit + Delete — stopPropagation so row click doesn't fire */}
+                      <td className="px-3 sm:px-4 py-3">
                         <div
                           className="flex gap-1 justify-end"
-                          // ✅ stop row click when pressing edit/delete buttons
                           onClick={(e) => e.stopPropagation()}
                         >
                           <button
                             onClick={() => navigate(`/upload?edit=${v._id}`)}
-                            className="p-1.5 hover:bg-[#3d3d3d] text-[#aaa] hover:text-white rounded transition-colors"
+                            className="p-1 sm:p-1.5 hover:bg-[#3d3d3d] text-[#aaa] hover:text-white rounded transition-colors"
                             title="Edit video"
                           >
-                            <MdEdit />
+                            <MdEdit className="text-sm sm:text-base" />
                           </button>
                           <button
                             onClick={() => handleDeleteVideo(v._id)}
-                            className="p-1.5 hover:bg-red-600/20 text-[#aaa] hover:text-red-400 rounded transition-colors"
+                            className="p-1 sm:p-1.5 hover:bg-red-600/20 text-[#aaa] hover:text-red-400 rounded transition-colors"
                             title="Delete video"
                           >
-                            <MdDelete />
+                            <MdDelete className="text-sm sm:text-base" />
                           </button>
                         </div>
                       </td>
@@ -369,10 +433,17 @@ export default function MyChannel() {
           )}
         </div>
       ) : (
-        <div className="text-center py-20 bg-[#212121] rounded-2xl border border-[#3d3d3d]">
-          <p className="text-white font-semibold text-lg mb-2">No channels yet</p>
-          <p className="text-[#aaa] text-sm mb-6">Create a channel to start uploading videos</p>
-          <button onClick={() => setShowCreateForm(true)} className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full text-sm font-semibold transition-colors flex items-center gap-2 mx-auto">
+        /* No channels empty state */
+        <div className="text-center py-16 sm:py-20 bg-[#212121] rounded-2xl border border-[#3d3d3d] px-4">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#272727] flex items-center justify-center mx-auto mb-4">
+            <MdVideoCall className="text-3xl sm:text-4xl text-[#aaa]" />
+          </div>
+          <p className="text-white font-semibold text-base sm:text-lg mb-2">No channels yet</p>
+          <p className="text-[#aaa] text-xs sm:text-sm mb-5 sm:mb-6">Create a channel to start uploading videos</p>
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="bg-red-600 hover:bg-red-700 text-white px-5 sm:px-6 py-2 rounded-full text-sm font-semibold transition-colors flex items-center gap-2 mx-auto"
+          >
             <MdAdd /> Create Channel
           </button>
         </div>
