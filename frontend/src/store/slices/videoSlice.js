@@ -94,10 +94,10 @@ const videoSlice = createSlice({
       .addCase(fetchVideos.pending, (state) => { state.loading = true; state.error = null })
       .addCase(fetchVideos.fulfilled, (state, action) => {
         state.loading = false
-        state.videos = action.payload.videos
-        state.total = action.payload.total
-        state.totalPages = action.payload.totalPages
-        state.currentPage = action.payload.currentPage
+        state.videos = action.payload.videos || []
+        state.total = action.payload.total || 0
+        state.totalPages = action.payload.totalPages || 1
+        state.currentPage = action.payload.currentPage || 1
       })
       .addCase(fetchVideos.rejected, (state, action) => { state.loading = false; state.error = action.payload })
       .addCase(fetchVideoById.pending, (state) => { state.loading = true; state.error = null; state.currentVideo = null })
